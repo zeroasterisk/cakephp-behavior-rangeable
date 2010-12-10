@@ -38,7 +38,7 @@ The behavior exposes a custom find type (kudos to "cloud behavior":https://githu
 class JobsController extends AppController {
 	
 	// simple example
-	function jobs_near_lat_lon($lat='38.113972', $lon='-85.837158') {
+	function near_lat_lon($lat='38.113972', $lon='-85.837158') {
 		$jobs = $this->Job->find('range', array(
 			'conditions' => array(
 				'Job.is_active' => 1, // whatever other conditions you like
@@ -54,7 +54,7 @@ class JobsController extends AppController {
 	}
 	
 	// simple example of translating a zip to a lat/lon automatically
-	function jobs_near_zip($zip='40206') {
+	function near_zip($zip='40206') {
 		$jobs = $this->Job->find('range', array(
 			'conditions' => array(
 				'Job.zip' => $zip,
@@ -66,7 +66,7 @@ class JobsController extends AppController {
 	}
 	
 	// an example of automatically increasing the range until we hit a minimum number of results
-	function jobs_near_zip_at_least($zip='40206', $at_least=20) {
+	function near_zip_at_least($zip='40206', $at_least=20) {
 		$jobs = $this->Job->find('range', array(
 			'conditions' => array(
 				'Job.zip' => $zip,
@@ -90,7 +90,7 @@ class JobsController extends AppController {
 	}
 	
 	// an example which sorts the results by distance
-	function jobs_near_zip_sorted($zip='40206', $at_least=20) {
+	function near_zip_sorted($zip='40206', $at_least=20) {
 		$jobs = $this->Job->find('range', array(
 			'conditions' => array(
 				'Job.zip' => $zip,
@@ -107,6 +107,29 @@ class JobsController extends AppController {
 			// ^ note: because we are incrementing our search from a small range, this shouldn't be too slow, but 
 			// ^ if it is, just set to an integer as the new limit, or false to disable
 			));
+		$this->set(compact('jobs', 'zip'));
+	}
+	
+	// and a paginate() example
+	function near_zip_paginated($zip='40206') {
+		$this->paginate = array(
+			'type' => 'range',
+			'conditions' => array(
+				'Job.zip' => $zip,
+				'Job.is_active' => 1, // whatever other conditions you like
+				),
+			'limit' => 10,
+			// following parameters are optional and can be set in the settings on the behavior
+			'range' => 20, // starting range = 20 miles
+			'range_out_till_count_is' => 20, // expand search range until we have at least 20 results (note, the limit is less, so we really will only get 10)
+			'range_out_increment' => 20, // increasing range by this increment
+			'range_out_limit' => 20, // maximum tries - max range = range + (range_out_increment * range_out_limit)
+			'order_by_distance' => true, // resorts the results by distance
+			'limitless' => true, // initial find doesn't have a limit, so resulst can be sorted correctly
+			// ^ note: because we are incrementing our search from a small range, this shouldn't be too slow, but 
+			// ^ if it is, just set to an integer as the new limit, or false to disable
+			);
+		$jobs = $this->paginate('Job');
 		$this->set(compact('jobs', 'zip'));
 	}
 }
