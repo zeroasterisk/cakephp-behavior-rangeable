@@ -12,14 +12,14 @@ h2. Requirements
 
 h2. Installation
 
-save the @rangeable.php@ file into @./app/models/behaviors/rangeable.php@ in your application
+git clone into app/plugins/rangeable
 
 on your model, add @Rangeable@ to your $actsAs array:
 
 <pre><code><?php
 # ./app/models/job.php
 class Job extends AppModel {
-	var $actsAs = array('Rangeable');
+	var $actsAs = array('Rangeable.Rangeable');
 }
 ?></code></pre>
 
